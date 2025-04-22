@@ -1,11 +1,12 @@
 import React from "react";
+import LoginForm from "../components/LoginForm.tsx";
 
 const LoginPage: React.FC = () => {
-    return (
-        <div>
-            Login Page
-        </div>
-    )
-}
+  return (
+    <div>
+      <LoginForm />
+    </div>
+  );
+};
 
-export default LoginPage
+export default LoginPage;

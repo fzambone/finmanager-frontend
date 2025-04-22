@@ -1,22 +1,38 @@
-import {Container, Nav, Navbar} from "react-bootstrap";
+import { Container, Nav, Navbar } from "react-bootstrap";
 import React from "react";
-import {Link} from "react-router-dom";
-
+import { Link, Outlet } from "react-router-dom";
 
 const MainLayout: React.FC = () => {
+  return (
+    <>
+      {/* --- Navbar --- */}
+      <Navbar bg="dark" variant="dark" expand={"lg"}>
+        <Container>
+          <Navbar.Brand as={Link} to={"/"}>
+            FinManager
+          </Navbar.Brand>
+          <Navbar.Toggle aria-controls="basic-navbar-nav" />
+          <Navbar.Collapse id="basic-navbar-nav">
+            <Nav className="me-auto">
+              <Nav.Link as={Link} to={"/"}>
+                Dashboard
+              </Nav.Link>
+            </Nav>
+            {/*<Nav>*/}
+            {/*  <Nav.Link as={Link} to={"/login"}>*/}
+            {/*    Login*/}
+            {/*  </Nav.Link>*/}
+            {/*</Nav>*/}
+          </Navbar.Collapse>
+        </Container>
+      </Navbar>
 
-    return (
-        <>
-            <Navbar bg="dark" variant="dark">
-                <Container>
-                    <Navbar.Brand href="#home">FinManager</Navbar.Brand>
-                    <Nav className="me-auto">
-                        <Nav.Link as={Link} to={"/"}>Dashboard</Nav.Link>
-                    </Nav>
-                </Container>
-            </Navbar>
-        </>
-    )
-}
+      {/* --- Main content --- */}
+      <Container className={"mt-3"}>
+        <Outlet />
+      </Container>
+    </>
+  );
+};
 
-export default MainLayout
+export default MainLayout;
