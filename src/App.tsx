@@ -1,8 +1,19 @@
 import './App.css'
+import { BrowserRouter, Routes, Route } from "react-router-dom"
+import LoginPage from './pages/LoginPage'
+import DashboardPage from './pages/DashboardPage'
+import NotFoundPage from './pages/NotFoundPage'
 
 function App() {
   return (
-    <h1>Placeholder</h1>
+      <BrowserRouter>
+        {/*Add MainLayout wrapper later*/}
+        <Routes>
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/dashboard" element={<DashboardPage />} />
+          <Route path="*" element={<NotFoundPage />} />
+        </Routes>
+      </BrowserRouter>
   )
 }
 
