@@ -3,15 +3,18 @@ import { BrowserRouter, Routes, Route } from "react-router-dom"
 import LoginPage from './pages/LoginPage'
 import DashboardPage from './pages/DashboardPage'
 import NotFoundPage from './pages/NotFoundPage'
+import MainLayout from "./components/MainLayout.tsx";
 
 function App() {
   return (
       <BrowserRouter>
         {/*Add MainLayout wrapper later*/}
         <Routes>
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/dashboard" element={<DashboardPage />} />
-          <Route path="*" element={<NotFoundPage />} />
+            <Route element={<MainLayout />}>
+                <Route path="/" element={<DashboardPage />} />
+            </Route>
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </BrowserRouter>
   )
