@@ -1,8 +1,9 @@
 import React, { FormEventHandler, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { Alert, Button, Container, Form, Spinner } from "react-bootstrap";
 import * as axios from "axios";
 import apiClient from "../api/axiosConfig.ts";
+import { useAuth } from "../hooks/useAuth.ts";
+import { UserInfo } from "../context/authContextDefs.ts";
 
 const LoginForm: React.FC = () => {
   // --- State Variables ---
@@ -11,7 +12,7 @@ const LoginForm: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  const navigate = useNavigate();
+  const { login } = useAuth();
 
   // --- Handle Form Submission ---
   const handleSubmit: FormEventHandler<HTMLFormElement> = async (event) => {
@@ -20,31 +21,28 @@ const LoginForm: React.FC = () => {
     setIsLoading(true);
 
     try {
-      const response = await apiClient.post("/auth/login", {
+      const response = await apiClient.post<{
+        access: string;
+        refresh?: string;
+        user: UserInfo;
+      }>("/auth/login", {
         email: email,
         password: password,
       });
 
       // --- Handle Successful Login ---
-      if (response.status === 200 && response.data.access) {
-        console.log("Login successful", response.data);
-
-        localStorage.setItem("accessToken", response.data.access);
-
-        if (response.data.refresh) {
-          localStorage.setItem("refreshToken", response.data.refresh);
-        }
-
-        if (response.data.user) {
-          localStorage.setItem("user", JSON.stringify(response.data.user));
-        }
-
-        navigate("/");
+      if (
+        response.status === 200 &&
+        response.data.access &&
+        response.data.user
+      ) {
+        login(response.data.access, response.data.user);
       } else {
         setError("Login failed. Unexpected response from server.");
         console.error("Unexpected login response:", response);
       }
     } catch (err) {
+      // --- Handle Errors (Using Axios type guard) ---
       console.error("Login error:", err);
       let errorMessage =
         "Login failed. Please check your credentials and try again.";
@@ -52,27 +50,26 @@ const LoginForm: React.FC = () => {
       if (axios.isAxiosError(err)) {
         if (err.response) {
           console.error("Error response data:", err.response.data);
-          console.error("Error response status:", err.response.status);
-
-          if (err.response.data && err.response.data.non_field_errors) {
-            errorMessage = err.response.data.non_field_errors.join(" ");
-          } else if (typeof err.response.data === "string") {
-            errorMessage = err.response.data;
-          } else if (err.response.data && err.response.data.detail) {
-            errorMessage = err.response.data.detail;
+          const data = err.response.data;
+          if (
+            data &&
+            data.non_field_errors &&
+            Array.isArray(data.non_field_errors)
+          ) {
+            errorMessage = data.non_field_errors.join(" ");
+          } else if (data && typeof data.detail === "string") {
+            errorMessage = data.detail;
+          } else if (typeof data === "string") {
+            errorMessage = data;
           }
         } else if (err.request) {
-          console.error("Error request:", err.request);
-          errorMessage =
-            "Login failed. Please check your credentials and try again.";
+          errorMessage = "Login failed. No response from server.";
         }
       } else if (err instanceof Error) {
-        console.error("Non-Axios error message:", err.message);
-        errorMessage = "Login failed: ${err.message}";
+        errorMessage = `Login failed: ${err.message}`;
       } else {
         errorMessage = "An unexpected error occurred during login.";
       }
-
       setError(errorMessage);
     } finally {
       setIsLoading(false);
