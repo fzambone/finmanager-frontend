@@ -45,7 +45,13 @@ function useLocalStorage<T>(key: string, initialValue: T): [T, SetValue<T>] {
 
       try {
         const newValue = value instanceof Function ? value(storedValue) : value;
-        window.localStorage.setItem(key, JSON.stringify(newValue));
+
+        if (newValue === null || newValue === undefined) {
+          window.localStorage.removeItem(key);
+        } else {
+          window.localStorage.setItem(key, JSON.stringify(newValue));
+        }
+
         setStoredValue(newValue);
         window.dispatchEvent(new Event("local-storage"));
       } catch (error) {

@@ -49,6 +49,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       setAccessToken(null);
       setUserInfo(null);
+
       navigate("/login");
     } catch (error) {
       console.error(
