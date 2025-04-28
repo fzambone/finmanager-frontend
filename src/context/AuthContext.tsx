@@ -17,20 +17,31 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     null,
   );
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     setIsLoading(false);
   }, []);
 
-  const navigate = useNavigate();
-
   // --- Login Function ---
   const login = useCallback(
     (token: string, user: UserInfo) => {
       // console.log("AuthProvider: Logging in...", { token, user });
+      console.log("AuthProvider login: Received token:", token);
+      console.log("AuthProvider login: Received user:", user);
       try {
+        if (token && token.startsWith('"') && token.endsWith('"')) {
+          console.warn(
+            "AuthProvider login: Token received appears to have extra quotes! Attempting to trim.",
+          );
+          token = token.substring(1, token.length - 1);
+        }
+
+        console.log("AuthProvider login: Storing token:", token);
+
         setAccessToken(token);
         setUserInfo(user);
+        console.log("AuthProvider login: State updated, navigating...");
         navigate("/");
       } catch (error) {
         console.error(

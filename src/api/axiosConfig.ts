@@ -14,9 +14,26 @@ const apiClient: AxiosInstance = axios.create({
 // Request interceptor to add the JWT token to headers
 apiClient.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem("accessToken");
+    const tokenKey = "accessToken";
+    const token = localStorage.getItem(tokenKey);
+
+    console.log(
+      `Axios Interceptor: Retrieved token with key '${tokenKey}':`,
+      token,
+    );
+
     if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+      let cleanToken = token;
+      if (cleanToken.startsWith('"') && cleanToken.endsWith('"')) {
+        console.warn(
+          "Axios Interceptor: Token from localStorage has extra quotes! Trimming.",
+        );
+        cleanToken = cleanToken.substring(1, cleanToken.length - 1);
+      }
+      config.headers.Authorization = `Bearer ${cleanToken}`;
+    } else {
+      console.log("Axios Interceptor: No token found in localStorage.");
+      delete config.headers.Authorization;
     }
     return config;
   },
